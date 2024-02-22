@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product\Product;
 use Auth;
-
+use App\Models\Product\Cart;
+use Redirect;
 class ProductsController extends Controller
 {
     public function singleProduct($id){
@@ -19,7 +20,14 @@ class ProductsController extends Controller
         ->orderBy('id','desc')
         ->get();
 
-        return view('products.productsingle',compact('product','relatedProducts'));
+
+        //checking for products in cart
+
+        $checkingInCart = Cart::where('pro_id', $id)
+        ->where('user_id', Auth::user()->id)
+        ->count();
+
+        return view('products.productsingle',compact('product','relatedProducts', 'checkingInCart'));
     }
 
     public function addCart(Request $request, $id){
@@ -34,5 +42,16 @@ class ProductsController extends Controller
         ]);
                 echo "item added to cart";
         //return view('products.productsingle',compact('product','relatedProducts'));
+        return Redirect::route('product.single',$id)->with(['success'=>"product added to cart succesffully"]);
+    }
+
+
+    public function cart(){
+
+        $cart = Cart::where('user_id', Auth::user()->id)
+        ->orderBy('id','desc')
+        ->get();
+
+       return view('products.cart', compact('cart'));
     }
 }
