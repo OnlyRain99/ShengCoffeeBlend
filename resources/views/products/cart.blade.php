@@ -18,14 +18,19 @@
         </div>
       </div>
     </section>
-		
+		<div class="container">
+@if( Session::has('delete'))
+	<p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('delete')}}</p>
+
+@endif
+</div>
 		<section class="ftco-section ftco-cart">
 			<div class="container">
 				<div class="row">
     			<div class="col-md-12 ftco-animate">
     				<div class="cart-list">
-	    				<table class="table">
-						    <thead class="thead-primary">
+	    				<table class="table-dark" style="width: 1100px">
+						    <thead style="background-color: #c49b63; height: 60px">
 						      <tr class="text-center">
 						        <th>&nbsp;</th>
 						        <th>&nbsp;</th>
@@ -36,17 +41,19 @@
 						      </tr>
 						    </thead>
 						    <tbody>
-						      <tr class="text-center">
-						        <td class="product-remove"><a href="#"><span class="icon-close"></span></a></td>
+							@if($cartProducts->count()>0)
+							@foreach($cartProducts as $cartProduct)
+								<tr class="text-center" style="height: 140px">
+						        <td class="product-remove"><a href="{{ route('cart.product.delete', $cartProduct->pro_id) }}"><span class="icon-close"></span></a></td>
 						        
-						        <td class="image-prod"><div class="img" style="background-image:url(images/menu-2.jpg);"></div></td>
+						        <td class="image-prod"><img width="100" height="80" src="{{ asset('assets/images/'.$cartProduct->image.'') }}"></td>
 						        
 						        <td class="product-name">
-						        	<h3>Creamy Latte Coffee</h3>
-						        	<p>Far far away, behind the word mountains, far from the countries</p>
+						        	<h3>{{ $cartProduct->name }}</h3>
+						        	<p>{{ $cartProduct->description }}</p>
 						        </td>
 						        
-						        <td class="price">$4.90</td>
+						        <td class="price">${{ $cartProduct->price }}</td>
 						        
 						        <td>
 									<div class="input-group mb-3">
@@ -54,29 +61,14 @@
 									 </div>
 					            </td>
 						        
-						        <td class="total">$4.90</td>
+						        <td class="total">${{ $cartProduct->price }}</td>
 						      </tr><!-- END TR-->
 
-						      <tr class="text-center">
-						        <td class="product-remove"><a href="#"><span class="icon-close"></span></a></td>
-						        
-						        <td class="image-prod"><div class="img" style="background-image:url(images/dish-2.jpg);"></div></td>
-						        
-						        <td class="product-name">
-						        	<h3>Grilled Ribs Beef</h3>
-						        	<p>Far far away, behind the word mountains, far from the countries</p>
-						        </td>
-						        
-						        <td class="price">$15.70</td>
-						        
-						        <td class="quantity">
-						        	<div class="input-group mb-3">
-					             	<input disabled type="text" name="quantity" class="quantity form-control input-number" value="1" min="1" max="100">
-					          	</div>
-					          </td>
-						        
-						        <td class="total">$15.70</td>
-						      </tr><!-- END TR-->
+							@endforeach
+						      @else
+
+							  <p class="text-center alert alert-success">You have no products in cart just yet</p>
+						      @endif
 						    </tbody>
 						  </table>
 					  </div>
@@ -88,23 +80,28 @@
     					<h3>Cart Totals</h3>
     					<p class="d-flex">
     						<span>Subtotal</span>
-    						<span>$20.60</span>
+    						<span>${{ $totalPrice }}</span>
     					</p>
     					<p class="d-flex">
     						<span>Delivery</span>
     						<span>$0.00</span>
     					</p>
-    					<p class="d-flex">
-    						<span>Discount</span>
-    						<span>$3.00</span>
-    					</p>
+    				
     					<hr>
     					<p class="d-flex total-price">
     						<span>Total</span>
-    						<span>$17.60</span>
+    						<span>${{ $totalPrice }}</span>
     					</p>
     				</div>
-    				<p class="text-center"><a href="checkout.html" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
+					@if($cartProducts->count()>0)
+					<form method="POST" action="{{ route('prepare.checkout') }}">
+						@csrf
+						<input name="price" type="hidden" value="{{ $totalPrice }}"> 
+    					<button type="submit" name="submit"  class="btn btn-primary py-3 px-4">Proceed to Checkout</button>
+					</form>
+					@else
+						<p class="text-center alert alert-success">You cannot checkout because you have no items in cart</p>
+						@endif
     			</div>
     		</div>
 			</div>
